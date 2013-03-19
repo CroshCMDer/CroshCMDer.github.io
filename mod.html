@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="mod.js"></script>
+		<title>Moderated Liveblog</title>
+		<link rel="stylesheet" href="mod.css" />
+	</head>
+	</body>
+		<div id="liveblog-container">
+			<div id="password-overlay"></div>
+			<div id="password-form">
+				<div id="password-validation">
+					The your password was incorrect.<br />
+					Please try again.
+				</div>
+				<div id="password-container">
+					Password: <input type="password" id="password" />
+				</div>
+				<div id="password-button">
+					<input type="button" value="Submit" id="password-submit" />
+				</div>
+			</div>
+			<div id="liveblog">
+				<div id="liveblog-left">
+					<div id="liveblog-raw-items">
+					</div>
+				</div>
+				<div id="liveblog-right">
+					<div id="liveblog-comment">
+						<table>
+							<tbody>
+								<tr>
+									<td>Username:</td>
+									<td><input type="text" id="username" /></td>
+								</tr>
+								<tr>
+									<td>Comment:</td>
+									<td><textarea rows="3" cols="50" id="comment"></textarea></td>
+								</tr>
+								<tr>
+									<td></td>
+									<td>
+										<div id="comment-button">
+											<input type="button" value="Submit" id="submit" />
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div id="liveblog-filtered-items">
+					</div>
+				</div>
+			</div>
+			<div style="clear:both"></div>
+		</div>
+	</body>
+</html>
