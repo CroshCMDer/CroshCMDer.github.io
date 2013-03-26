@@ -308,9 +308,14 @@ $(document).ready(function() {
 		$(this).parents(".liveblog-item").next().slideToggle();
 		$(this).parent().prev().children("span").toggleClass("liveblog-approve-button");
 	});
-	//submit the comment from the comment box when the submit button is clicked
+	//submit a comment when the submit button is clicked or "enter" is pressed in the comment textarea
 	$("body").on("click","#submit",function() {
 		Liveblog.commentSubmit(true);
+	});
+	$("body").on("keypress","#comment",function(e) {
+		if (e.which == 13) {
+			Liveblog.commentSubmit(true);
+		}
 	});
 	//if a raw item's contents are edited, and then the save button is clicked
 	//run the content through the Liveblog.embedContent function
@@ -340,11 +345,5 @@ $(document).ready(function() {
 	$("body").on("click","#liveblog-filtered-items .liveblog-username",function() {
 		$("#comment").val($("#comment").val() + "@" + $(this).text());
 		$("#comment").focus();
-	});
-	//if the user presses "enter" in the comment textarea, submit the comment.
-	$("body").on("keypress","#comment",function(e) {
-		if (e.which == 13) {
-			Liveblog.commentSubmit(true);
-		}
 	});
 });
