@@ -1,3 +1,4 @@
+//create one object in the global namespace that will hold all data required for this application
 window.Liveblog = {};
 //the minimum amount of time (in milliseconds) to wait between Ajax calls
 //set to 0 to make each call immediatly after the previous one finishes
