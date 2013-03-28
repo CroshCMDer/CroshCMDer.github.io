@@ -111,7 +111,13 @@ Liveblog.insertData = function(data) {
 			contentString += newData[i].username;
 			contentString += "</a>: <span class='liveblog-comment'>";
 			//pass the comment text through the Liveblog.embedContent to convert content to HTML where appropriate
-			contentString += Liveblog.embedContent(newData[i].comment);
+			try {
+				contentString += Liveblog.embedContent(newData[i].comment);
+			}
+			//if Liveblog.embedContent encounters an error from a poorly formatted URL, insert the content directly
+			catch (e) {
+				contentString += newData[i].comment;
+			}
 			contentString += "</span></div>";
 			////get the current scroll location of the container
 			var scrollOffset = $("#liveblog-items").scrollTop();

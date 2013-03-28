@@ -109,8 +109,14 @@ Liveblog.insertData = function(data,filtered) {
 			contentString += "'><div class='liveblog-item'><a class='liveblog-username'>";
 			contentString += newData[i].username;
 			contentString += "</a>: <span class='liveblog-comment'>";
-			//send the comment through the Liveblog.embedContent function to create HTML where applicable
-			contentString += Liveblog.embedContent(newData[i].comment);
+			//try to send the comment through the Liveblog.embedContent function to create HTML where applicable
+			try {
+				contentString += Liveblog.embedContent(newData[i].comment);
+			}
+			//if Liveblog.embedContent encounters an error from a poorly formatted URL, insert the content directly
+			catch (e) {
+				contentString += newData[i].comment;
+			}
 			contentString += "</span>";
 			//the approve/edit buttons appended to raw feed items
 			var rawButtons = "<div class='liveblog-item-buttons'>" +
@@ -318,16 +324,27 @@ $(document).ready(function() {
 		}
 	});
 	//if a raw item's contents are edited, and then the save button is clicked
-	//run the content through the Liveblog.embedContent function
-	//replace the old content with the updated content
-	//adjust embeded content's height and width accordingly
 	//a persistent event handler is requeried here since the content will change after page load
 	$("body").on("click",".liveblog-item-editor .liveblog-edit-save",function() {
+		//hide the edit view and re-enable the approve button
 		$(this).parent().slideUp();
 		$(this).parents(".liveblog-item-container").find(".liveblog-item-approve span").addClass("liveblog-approve-button");
+		//get the new value from the text area and update the plain text content
 		var newVal = $(this).parent().children("textarea").val();
 		$(this).parent().next().text(newVal);
-		$(this).parent().prev().children(".liveblog-comment").html(Liveblog.embedContent(newVal));
+		//create a new variable to store the string returned from Liveblog.embedContent
+		var htmlVal = ""
+		//try to send the comment through the Liveblog.embedContent function to create HTML where applicable
+		try {
+			htmlVal = Liveblog.embedContent(newVal);
+		}
+		//if Liveblog.embedContent encounters an error from a poorly formatted URL, insert the content directly
+		catch (e) {
+			htmlVal = newVal;
+		}
+		//replace the old content with the updated content
+		$(this).parent().prev().children(".liveblog-comment").html(htmlVal);
+		//adjust embeded content's height and width accordingly
 		var videoWidth = $(this).parents(".liveblog-item-container").width() > 560 ? 560 : $(this).parents(".liveblog-item-container").width();
 		var videoHeight = videoWidth / (16 / 9);
 		$(this).parents(".liveblog-item-container").find("iframe").css("width",videoWidth + "px").css("height",videoHeight + "px");
