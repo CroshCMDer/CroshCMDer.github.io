@@ -91,27 +91,25 @@ Liveblog.embedContent = function(str) {
 
 //inserts data returned from the server into the comments feed
 Liveblog.insertData = function(data) {
-	//convert the JSON data to a standard array
-	var newData = Array.prototype.slice.call(data);
 	//iterate through each item in the array sequentially
-	for (var i = newData.length - 1; i >= 0; i--) {
+	for (var i = data.length - 1; i >= 0; i--) {
 		//check to see that there isn't an existing item with a matching raw id
 		//this prevents duplicates in case two mods simultaneously approve the same comment
 		//if the raw id is 0, then it's a mod comment, so let it through
-		if ($("#liveblog-items .raw-id-" + newData[i].raw_id).length == 0 || newData[i].raw_id == 0) {
+		if ($("#liveblog-items .raw-id-" + data[i].raw_id).length == 0 || data[i].raw_id == 0) {
 			//build the comment string
 			var contentString = "<div id='";
-			contentString += newData[i].id;
+			contentString += data[i].id;
 			contentString += "' class='liveblog-item";
-			contentString += " raw-id-" + newData[i].raw_id;
+			contentString += " raw-id-" + data[i].raw_id;
 			//if Liveblog.alternate is true, add the "alternate" class to the current item
 			//this class is used for styling purposes
 			contentString += Liveblog.alternate ? " alternate" : "";
 			contentString += "'><a class='liveblog-username'>";
-			contentString += newData[i].username;
+			contentString += data[i].username;
 			contentString += "</a>: <span class='liveblog-comment'>";
 			//pass the comment text through the Liveblog.embedContent to convert content to HTML where appropriate
-			contentString += Liveblog.embedContent(newData[i].comment);
+			contentString += Liveblog.embedContent(data[i].comment);
 			contentString += "</span></div>";
 			////get the current scroll location of the container
 			var scrollOffset = $("#liveblog-items").scrollTop();
