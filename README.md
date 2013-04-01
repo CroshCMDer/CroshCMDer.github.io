@@ -10,6 +10,8 @@ When a user submits a comment, it is added to the "raw" table. Ajax running on a
 
 The database tables use an auto-incrementing ID column as the Primary Key, and this is the only field ever used for filtering to maximize database effeciancy. The InnoDB database engine is used for both tables as it is the most efficiant for handling concurrent reads and writes.
 
+PHP's MySQLi API is used for interacting with the database, and all dynamic queries are made using prepared statements to maximize security.
+
 All submitted comments are parsed for content formatted like a URL. If such content is found, it will be treated in one of three ways:
 
 * If the URL is a YouTube video, it will be embedded into the content using an IFRAME tag
