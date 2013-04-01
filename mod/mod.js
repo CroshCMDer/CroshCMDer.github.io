@@ -91,24 +91,32 @@ Liveblog.embedContent = function(str) {
 Liveblog.insertData = function(data,filtered) {
 	//determine the desination container
 	var itemsContainer = filtered ? $("#liveblog-filtered-items") : $("#liveblog-raw-items");
+	//convert the JSON data to a standard array
+	var newData = Array.prototype.slice.call(data);
 	//iterate through each item in the array sequentially
-	for (var i = data.length - 1; i >= 0; i--) {
+	for (var i = newData.length - 1; i >= 0; i--) {
 		//if this is the filtered feed, ensure that no item was accidently approved by two moderaters simultaneously
-		if ((filtered && ($("#liveblog-filtered-items .raw-id-" + data[i].raw_id).length == 0 || data[i].raw_id == 0)) || !filtered) {
+		if ((filtered && ($("#liveblog-filtered-items .raw-id-" + newData[i].raw_id).length == 0 || newData[i].raw_id == 0)) || !filtered) {
 			//start building the return string
 			var contentString = "<div id='";
-			contentString += data[i].id;
+			contentString += newData[i].id;
 			contentString += "' class='liveblog-item-container";
 			//if it's the filtered feed, add the item's raw ID as a class
-			contentString += filtered ? " raw-id-" + data[i].raw_id : "";
+			contentString += filtered ? " raw-id-" + newData[i].raw_id : "";
 			//Liveblog.alternate tracks whether or not to apply the "alternate" class to filtered feed items
 			//this class is used for styling purposes
 			contentString += filtered && Liveblog.alternate ? " alternate" : "";
 			contentString += "'><div class='liveblog-item'><a class='liveblog-username'>";
-			contentString += data[i].username;
+			contentString += newData[i].username;
 			contentString += "</a>: <span class='liveblog-comment'>";
-			//send the comment through the Liveblog.embedContent function to create HTML where applicable
-			contentString += Liveblog.embedContent(data[i].comment);
+			//try to send the comment through the Liveblog.embedContent function to create HTML where applicable
+			try {
+				contentString += Liveblog.embedContent(newData[i].comment);
+			}
+			//if Liveblog.embedContent encounters an error from a poorly formatted URL, insert the content directly
+			catch (e) {
+				contentString += newData[i].comment;
+			}
 			contentString += "</span>";
 			//the approve/edit buttons appended to raw feed items
 			var rawButtons = "<div class='liveblog-item-buttons'>" +
@@ -133,7 +141,7 @@ Liveblog.insertData = function(data,filtered) {
 			contentString += !filtered ? rawButtons : "";
 			contentString += "</div>";
 			//if the raw feed, add the comment text (unembeded) in a hidden div so it can be edited
-			var additionalRaw = "<div class='liveblog-item-editor'><textarea rows='5' cols='50'></textarea><br /><input type='button' value='Save' class='liveblog-edit-save' /> <input type='button' value='Cancel' class='liveblog-edit-cancel' /></div><div class='liveblog-item-plain'>" + data[i].comment + "</div>";
+			var additionalRaw = "<div class='liveblog-item-editor'><textarea rows='5' cols='50'></textarea><br /><input type='button' value='Save' class='liveblog-edit-save' /> <input type='button' value='Cancel' class='liveblog-edit-cancel' /></div><div class='liveblog-item-plain'>" + newData[i].comment + "</div>";
 			contentString += !filtered ? additionalRaw : "";
 			contentString += "</div>";
 			//get the current scroll location of the container
@@ -164,7 +172,7 @@ Liveblog.insertData = function(data,filtered) {
 			}
 			if (filtered) {
 				//if an items has been approved, remove it from the raw feed so it can't be approved again
-				$("#liveblog-raw-items #" + data[i].raw_id).hide();
+				$("#liveblog-raw-items #" + newData[i].raw_id).hide();
 			}
 			//flip the Liveblog.alternate boolean
 			Liveblog.alternate = filtered ? !Liveblog.alternate : Liveblog.alternate;
@@ -316,16 +324,27 @@ $(document).ready(function() {
 		}
 	});
 	//if a raw item's contents are edited, and then the save button is clicked
-	//run the content through the Liveblog.embedContent function
-	//replace the old content with the updated content
-	//adjust embeded content's height and width accordingly
 	//a persistent event handler is requeried here since the content will change after page load
 	$("body").on("click",".liveblog-item-editor .liveblog-edit-save",function() {
+		//hide the edit view and re-enable the approve button
 		$(this).parent().slideUp();
 		$(this).parents(".liveblog-item-container").find(".liveblog-item-approve span").addClass("liveblog-approve-button");
+		//get the new value from the text area and update the plain text content
 		var newVal = $(this).parent().children("textarea").val();
 		$(this).parent().next().text(newVal);
-		$(this).parent().prev().children(".liveblog-comment").html(Liveblog.embedContent(newVal));
+		//create a new variable to store the string returned from Liveblog.embedContent
+		var htmlVal = ""
+		//try to send the comment through the Liveblog.embedContent function to create HTML where applicable
+		try {
+			htmlVal = Liveblog.embedContent(newVal);
+		}
+		//if Liveblog.embedContent encounters an error from a poorly formatted URL, insert the content directly
+		catch (e) {
+			htmlVal = newVal;
+		}
+		//replace the old content with the updated content
+		$(this).parent().prev().children(".liveblog-comment").html(htmlVal);
+		//adjust embeded content's height and width accordingly
 		var videoWidth = $(this).parents(".liveblog-item-container").width() > 560 ? 560 : $(this).parents(".liveblog-item-container").width();
 		var videoHeight = videoWidth / (16 / 9);
 		$(this).parents(".liveblog-item-container").find("iframe").css("width",videoWidth + "px").css("height",videoHeight + "px");
